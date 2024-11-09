@@ -13,6 +13,6 @@ func main()  {
 }
 
 func handleFoo(c *fiber.Ctx ) error {
-	
-	return c.JSON(map[string]string{"msg": "endpoint reached"})
+
+	return c.JSON(map[string]string{"msg": "endpoint reached vol 3"})
 }
