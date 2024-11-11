@@ -3,20 +3,17 @@ package main
 import (
 	"context"
 	"flag"
-	"fmt"
 	"golang-hotel-reservation/api"
-	"golang-hotel-reservation/types"
+	"golang-hotel-reservation/db"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 const dburi = "mongodb://localhost:27017"
-const dbname = "hotel-reservation"
-const userColl = "users"
+
 
 func main() {
 
@@ -24,25 +21,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	ctx := context.Background()
-	coll := client.Database(dbname).Collection(userColl)
-
-	user := types.User{
-		FirstName: "James",
-		LastName: "At the water cooler",
-	}
-	_, err = coll.InsertOne(ctx, user)
-	if err != nil { 
-		log.Fatal(err)
-	}
-
-	var james types.User
-	if err := coll.FindOne(ctx, bson.M{}).Decode(&james); err!= nil {
-		log.Fatal(err)
-	} 
-
-	fmt.Println(james)
+	//handler initialization
+	userHandler := api.NewUserHandler(db.NewMongoUserStore(client))
 
 	listenAddress := flag.String("listenAddress", ":5500", "The listen address or port of the API server.")
 	flag.Parse()
@@ -50,8 +30,11 @@ func main() {
 	app := fiber.New()
 	apiV1 := app.Group("/api/v1")
 
-	apiV1.Get("/user", api.HandleGetUsers)
-	apiV1.Get("/user/:id", api.HandleGetUser)
+
+
+	
+	apiV1.Get("/user", userHandler.HandleGetUsers )
+	apiV1.Get("/user/:id", userHandler.HandleGetUser )
 
 	app.Listen(*listenAddress)
 }
