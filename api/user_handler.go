@@ -15,6 +15,6 @@ func HandleGetUsers(c *fiber.Ctx) error {
 	return c.JSON(u)
 }
 
-func HandleGetUserById(c *fiber.Ctx) error {
+func HandleGetUser(c *fiber.Ctx) error {
 	return c.JSON("James")
 }

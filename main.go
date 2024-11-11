@@ -15,7 +15,7 @@ func main()  {
 	apiV1 := app.Group("/api/v1")
 
 	apiV1.Get("/user", api.HandleGetUsers)
-	apiV1.Get("/user/:id", api.HandleGetUserById)
+	apiV1.Get("/user/:id", api.HandleGetUser)
 	
 	app.Listen(*listenAddress)
 }
