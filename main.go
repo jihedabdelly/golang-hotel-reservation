@@ -40,7 +40,7 @@ func main() {
 
 
 
-	
+	apiV1.Post("/user", userHandler.HandlePostUser)
 	apiV1.Get("/user", userHandler.HandleGetUsers )
 	apiV1.Get("/user/:id", userHandler.HandleGetUser )
 
