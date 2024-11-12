@@ -18,7 +18,6 @@ func NewUserHandler(userStore db.UserStore) *UserHandler {
 	}
 }
 
-// these handlers are public (upperCase 1st letter)
 func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
 	var (
 		id  = c.Params("id")
