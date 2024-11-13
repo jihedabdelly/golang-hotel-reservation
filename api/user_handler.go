@@ -80,7 +80,7 @@ func (h *UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
 func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
 	var (
 		userId = c.Params("id")
-		values bson.M
+		values types.UpdateUserParams
 	)
 
 	oid, err := primitive.ObjectIDFromHex(userId)

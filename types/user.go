@@ -15,6 +15,10 @@ const (
 	minPasswordLen  = 7
 )
 
+type UpdateUserParams struct {
+	FirstName string `json:"firstName,omitempty" bson:"firstName,omitempty"`
+	LastName  string `json:"lastName,omitempty" bson:"lastName,omitempty"`
+}
 type CreateUserParams struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
