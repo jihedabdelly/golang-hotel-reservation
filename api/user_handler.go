@@ -1,10 +1,12 @@
 package api
 
 import (
+	"errors"
 	"golang-hotel-reservation/db"
 	"golang-hotel-reservation/types"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type UserHandler struct {
@@ -23,6 +25,9 @@ func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
 	)
 	user, err := h.userStore.GetUserByID(c.Context(), id)
 	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return c.JSON(map[string]string{"error": "not found!"})
+		}
 		return err
 	}
 	return c.JSON(user)
@@ -57,4 +62,20 @@ func (h *UserHandler) HandlePostUser(c *fiber.Ctx) error {
 		return err
 	}
 	return c.JSON(insertedUser)
+}
+
+func (h *UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
+	userId := c.Params("id")
+
+	err := h.userStore.DeleteUser(c.Context(), userId)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(map[string]string{"deleted": userId})
+}
+
+func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
+	//userId := c.Params("id")
+	return nil
 }
