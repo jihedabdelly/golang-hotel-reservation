@@ -6,6 +6,8 @@ import (
 	"golang-hotel-reservation/types"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -21,7 +23,7 @@ func NewUserHandler(userStore db.UserStore) *UserHandler {
 
 func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
 	var (
-		id  = c.Params("id")
+		id = c.Params("id")
 	)
 	user, err := h.userStore.GetUserByID(c.Context(), id)
 	if err != nil {
@@ -57,7 +59,7 @@ func (h *UserHandler) HandlePostUser(c *fiber.Ctx) error {
 		return err
 	}
 
-	insertedUser, err := h.userStore.InsertUser(c.Context(), *user) 
+	insertedUser, err := h.userStore.InsertUser(c.Context(), *user)
 	if err != nil {
 		return err
 	}
@@ -76,6 +78,25 @@ func (h *UserHandler) HandleDeleteUser(c *fiber.Ctx) error {
 }
 
 func (h *UserHandler) HandlePutUser(c *fiber.Ctx) error {
-	//userId := c.Params("id")
-	return nil
+	var (
+		userId = c.Params("id")
+		values bson.M
+	)
+
+	oid, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return err
+	}
+	filter := bson.M{"_id": oid}
+
+	if err := c.BodyParser(&values); err != nil {
+		return err
+	}
+	update := bson.M{"$set": values}
+
+	if err = h.userStore.UpdateUser(c.Context(), filter, update); err != nil {
+		return err
+	}
+
+	return c.JSON(map[string]string{"updated": userId})
 }

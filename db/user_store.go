@@ -16,7 +16,7 @@ type UserStore interface {
 	GetUsers(context.Context) ([]*types.User, error )
 	InsertUser(context.Context, types.User) (*types.User, error)
 	DeleteUser(context.Context, string) error
-	//UpdateUser(context.Context, string) (*types.User, error)
+	UpdateUser(ctx context.Context, filter bson.M, update bson.M) error
 }
 
 type MongoUserStore struct {
@@ -79,6 +79,15 @@ func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 	// TODO: maybe it's a good idea to handle if we did not delete any user.
 	// maybe log it or something??
 	_, err = s.coll.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M, update bson.M) error {
+	_, err := s.coll.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
 	}
