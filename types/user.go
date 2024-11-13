@@ -28,21 +28,22 @@ func isValidEmail(email string) bool {
 	return emailRegex.MatchString(email)
 }
 
-func (p *CreateUserParams) Validate() error {
+func (p *CreateUserParams) Validate() []string {
+	errors := []string{}
 	if len(p.FirstName) < minFirstNameLen {
-		return fmt.Errorf("FirstName too short, should be at least %d", minFirstNameLen)
+		errors = append(errors, fmt.Sprintf("FirstName too short, should be at least %d", minFirstNameLen))
 	}
 	if len(p.LastName) < minLastNameLen {
-		return fmt.Errorf("LastName too short, should be at least %d", minLastNameLen)
+		errors = append(errors, fmt.Sprintf("LastName too short, should be at least %d", minLastNameLen))
 	}
 	if len(p.Password) < minPasswordLen {
-		return fmt.Errorf("the password too short, should be at least %d", minPasswordLen)
+		errors = append(errors, fmt.Sprintf("the password too short, should be at least %d", minPasswordLen))
 	}
 	if !isValidEmail(p.Email) {
-		return fmt.Errorf("this %s email format is not a valid email", p.Email)
-	}
-	
-	return nil
+		errors = append(errors, fmt.Sprintf("this %s email format is not a valid email", p.Email))
+	} 
+
+	return errors
 }
 
 type User struct {
@@ -54,10 +55,6 @@ type User struct {
 }
 
 func NewUserFromParams(params CreateUserParams) (*User, error) {
-	/* if err := params.Validate(); err != nil {
-		return nil, err
-	} */
-
 	encpw, err := bcrypt.GenerateFromPassword([]byte(params.Password), bcryptCost)
 	if err != nil {
 		return &User{}, err
