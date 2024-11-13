@@ -28,19 +28,19 @@ func isValidEmail(email string) bool {
 	return emailRegex.MatchString(email)
 }
 
-func (p *CreateUserParams) Validate() []string {
-	errors := []string{}
+func (p *CreateUserParams) Validate() map[string]string {
+	errors := map[string]string{}
 	if len(p.FirstName) < minFirstNameLen {
-		errors = append(errors, fmt.Sprintf("FirstName too short, should be at least %d", minFirstNameLen))
+		errors["firstName"] = fmt.Sprintf("FirstName too short, should be at least %d", minFirstNameLen)
 	}
 	if len(p.LastName) < minLastNameLen {
-		errors = append(errors, fmt.Sprintf("LastName too short, should be at least %d", minLastNameLen))
+		errors["lastName"] = fmt.Sprintf("LastName too short, should be at least %d", minLastNameLen)
 	}
 	if len(p.Password) < minPasswordLen {
-		errors = append(errors, fmt.Sprintf("the password too short, should be at least %d", minPasswordLen))
+		errors["password"] = fmt.Sprintf("the password too short, should be at least %d", minPasswordLen)
 	}
 	if !isValidEmail(p.Email) {
-		errors = append(errors, fmt.Sprintf("this %s email format is not a valid email", p.Email))
+		errors["email"] = fmt.Sprintf("this %s email format is not a valid email", p.Email)
 	} 
 
 	return errors
