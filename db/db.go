@@ -1,4 +1,7 @@
 package db
 
-const DBNAME = "hotel-reservation"
-const DBNAME_TEST = "hotel-reservation-test"
+const (
+	DBNAME      = "hotel-reservation"
+	DBNAME_TEST = "hotel-reservation-test"
+	DBURI       = "mongodb://localhost:27017"
+)
