@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func main ()  {
+func main() {
 	ctx := context.Background()
 
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBURI))
@@ -19,23 +19,39 @@ func main ()  {
 		log.Fatal(err)
 	}
 	hotelStore := db.NewMongoHotelStore(client, db.DBNAME)
+	roomStore := db.NewMongoRoomStore(client, db.DBNAME)
 
 	hotel := types.Hotel{
-		Name: "Bellucia",
+		Name:     "Bellucia",
 		Location: "Maldives",
 	}
-
-	room := types.Room{
-		Type: types.SingleRoomType,
-		BasePrice: 99.9,
-	} 
+	rooms := []types.Room{
+		{
+			Type:      types.SingleRoomType,
+			BasePrice: 99.9,
+		}, {
+			Type:      types.DeluxeRoomType,
+			BasePrice: 199.9,
+		},
+		{
+			Type:      types.SeaSideRoomType,
+			BasePrice: 122.9,
+		},
+	}
 
 	insertedHotel, err := hotelStore.InsertHotel(ctx, &hotel)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	room.HotelID = insertedHotel.ID
+	for _, room := range rooms {
+		room.HotelID = insertedHotel.ID
 
-	fmt.Println(insertedHotel)
+		insertedRoom, err := roomStore.InsertRoom(ctx, &room)
+		if err != nil {
+			log.Fatal(err) 
+		}
+		fmt.Println(insertedRoom)
+	}
+
 }
