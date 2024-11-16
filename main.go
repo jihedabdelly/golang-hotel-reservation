@@ -29,6 +29,9 @@ func main() {
 	}
 	//handler initialization
 	userHandler := api.NewUserHandler(db.NewMongoUserStore(client, db.DBNAME))
+	hotelStore := db.NewMongoHotelStore(client)
+	roomStore := db.NewMongoRoomStore(client, hotelStore)
+	hotelHandler := api.NewHotelHandler(hotelStore, roomStore)
 
 	listenAddress := flag.String("listenAddress", ":5500", "The listen address or port of the API server.")
 	flag.Parse()
@@ -36,11 +39,15 @@ func main() {
 	app := fiber.New(config)
 	apiV1 := app.Group("/api/v1")
 
+	// user handlers
 	apiV1.Put("/user/:id", userHandler.HandlePutUser)
 	apiV1.Delete("/user/:id", userHandler.HandleDeleteUser)
 	apiV1.Post("/user", userHandler.HandlePostUser)
 	apiV1.Get("/user", userHandler.HandleGetUsers )
 	apiV1.Get("/user/:id", userHandler.HandleGetUser )
+
+	// hotel handlers
+	apiV1.Get("/hotel", hotelHandler.HandleGetHotels)
 
 	app.Listen(*listenAddress)
 }
