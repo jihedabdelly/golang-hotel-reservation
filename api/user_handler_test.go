@@ -28,7 +28,7 @@ func (tbd *testdb) teardown(t *testing.T) {
 	}
 }
 
-func setup(t *testing.T) *testdb {
+func setup() *testdb {
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(testdburi))
 	if err != nil {
 		log.Fatal(err)
@@ -41,7 +41,7 @@ func setup(t *testing.T) *testdb {
 }
 
 func TestPostUser(t *testing.T)  {
-	tdb := setup(t)
+	tdb := setup()
 	defer tdb.teardown(t)
 	
 	app := fiber.New()

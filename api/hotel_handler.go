@@ -25,26 +25,9 @@ type HotelQueryParams struct {
 }
 
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
-	var queryParams HotelQueryParams
-	if err := c.QueryParser(&queryParams); err != nil {
-		return err
-	}
-
 	hotels, err := h.hotelStore.GetHotels(c.Context(), nil)
 	if err != nil {
 		return err
 	}
-
-	if  queryParams.Rating > 0 {
-		return c.JSON(hotels)
-	}
-
-	var filteredHotels []types.Hotel
-	for _, hotel := range hotels {
-		if hotel.Rating == queryParams.Rating {
-			filteredHotels = append(filteredHotels, *hotel)
-		}
-	}
-
-	return c.JSON(filteredHotels)
+	return c.JSON(hotels)
 }
