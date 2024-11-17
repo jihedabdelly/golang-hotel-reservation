@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"golang-hotel-reservation/api"
+	"golang-hotel-reservation/api/middleware"
 	"golang-hotel-reservation/db"
 	"log"
 
@@ -37,7 +38,7 @@ func main() {
 		hotelHandler = api.NewHotelHandler(store)
 		userHandler = api.NewUserHandler(userStore)
 		app          = fiber.New(config)
-		apiV1        = app.Group("/api/v1")
+		apiV1        = app.Group("/api/v1", middleware.JWTAuthentication)
 	)
 
 	// user handlers
