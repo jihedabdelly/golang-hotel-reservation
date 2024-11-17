@@ -27,22 +27,24 @@ func main() {
 	}
 	//handler initialization
 	var (
-		hotelStore  = db.NewMongoHotelStore(client)
-		roomStore   = db.NewMongoRoomStore(client, hotelStore)
-		userStore   = db.NewMongoUserStore(client, db.DBNAME)
-		store       = &db.Store{
+		hotelStore = db.NewMongoHotelStore(client)
+		roomStore  = db.NewMongoRoomStore(client, hotelStore)
+		userStore  = db.NewMongoUserStore(client, db.DBNAME)
+		store      = &db.Store{
 			Hotel: hotelStore,
 			Room:  roomStore,
-			User: userStore,
+			User:  userStore,
 		}
 		hotelHandler = api.NewHotelHandler(store)
-		userHandler = api.NewUserHandler(userStore)
+		userHandler  = api.NewUserHandler(userStore)
 		app          = fiber.New(config)
+		apiV1noAuth  = app.Group("/api")
 		apiV1        = app.Group("/api/v1", middleware.JWTAuthentication)
+
 	)
 
 	// auth
-	apiV1.Post("/auth", userHandler.HandleAuthenticate)
+	apiV1noAuth.Post("/auth", userHandler.HandleAuthenticate)
 
 	// user handlers
 	apiV1.Put("/user/:id", userHandler.HandlePutUser)

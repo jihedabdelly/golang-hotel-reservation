@@ -29,6 +29,7 @@ type AuthParams struct {
 
 func (h *UserHandler) HandleAuthenticate(c *fiber.Ctx) error {
 	var AuthParams AuthParams
+	fmt.Println(16516616)
 	if err := c.BodyParser(&AuthParams); err != nil {
 		return err
 	}
