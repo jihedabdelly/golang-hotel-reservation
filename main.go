@@ -41,6 +41,9 @@ func main() {
 		apiV1        = app.Group("/api/v1", middleware.JWTAuthentication)
 	)
 
+	// auth
+	apiV1.Post("/auth", userHandler.HandleAuthenticate)
+
 	// user handlers
 	apiV1.Put("/user/:id", userHandler.HandlePutUser)
 	apiV1.Delete("/user/:id", userHandler.HandleDeleteUser)
