@@ -1,10 +1,12 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"golang-hotel-reservation/db"
 
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type AuthHandler struct {
@@ -23,13 +25,23 @@ type AuthParams struct {
 }
 
 func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
-	var AuthParams AuthParams
-	if err := c.BodyParser(&AuthParams); err != nil {
+	var params AuthParams
+	if err := c.BodyParser(&params); err != nil {
 		return err
 	}
 
-	fmt.Println("Auth params:", AuthParams)
+	user, err := h.userStore.GetUserByEmail(c.Context(), params.Email)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return fmt.Errorf("invalid credentials")
+		}
+		return err
+	}
+
+
+	fmt.Println(user)
 
 	return nil
 }
+
 
