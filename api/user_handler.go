@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"golang-hotel-reservation/db"
 	"golang-hotel-reservation/types"
 
@@ -20,23 +19,6 @@ func NewUserHandler(userStore db.UserStore) *UserHandler {
 	return &UserHandler{
 		userStore: userStore,
 	}
-}
-
-type AuthParams struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-func (h *UserHandler) HandleAuthenticate(c *fiber.Ctx) error {
-	var AuthParams AuthParams
-	fmt.Println(16516616)
-	if err := c.BodyParser(&AuthParams); err != nil {
-		return err
-	}
-
-	fmt.Println("Auth params:", AuthParams)
-
-	return nil
 }
 
 func (h *UserHandler) HandleGetUser(c *fiber.Ctx) error {
