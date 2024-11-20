@@ -4,10 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"golang-hotel-reservation/db"
+	"golang-hotel-reservation/types"
+	"os"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
 	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthHandler struct {
@@ -25,6 +28,16 @@ type AuthParams struct {
 	Password string `json:"password"`
 }
 
+type AuthResponse struct {
+	User *types.User `json:"user"`
+	Token string `json:"token"`
+}
+
+// A hendler sould only do:
+//  - serialization of incoming request (JSON)
+//  - do some dat fetching from db
+//  - call some business logic
+//  - return the data back to user
 func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 	var params AuthParams
 	if err := c.BodyParser(&params); err != nil {
@@ -39,13 +52,33 @@ func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 		return err
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.EncryptedPassword), []byte(params.Password)); err != nil {
+	if !types.IsValidPassword(user.EncryptedPassword, params.Password){
 		return fmt.Errorf("invalid credentials")
 	}
-
-	fmt.Println("authenticated ->", user)
-
-	return nil
+	resp := AuthResponse{
+		User: user,
+		Token: createTokenFromUser(user),
+	}
+	return c.JSON(resp)
 }
 
+func createTokenFromUser(user *types.User) string {
+	now := time.Now()
+	validTill := now.Add(time.Hour * 4)
+	claims := jwt.MapClaims{
+		"id": user.ID,
+		"email": user.Email,
+		"valiodTill": validTill,
+	}
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	secret := os.Getenv("JWT_SECRET")
+	fmt.Println("-->",secret)
+	tokenString, err := token.SignedString([]byte(secret))
+
+	if err != nil {
+		fmt.Println(("failed to sign token with secret"))
+	}
+
+	return tokenString
+}

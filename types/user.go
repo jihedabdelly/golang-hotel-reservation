@@ -25,6 +25,10 @@ type CreateUserParams struct {
 	Email     string `json:"email"`
 	Password  string `json:"password"`
 }
+func IsValidPassword(encpw, pw string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(encpw), []byte(pw)) == nil		
+}
+
 
 func isValidEmail(email string) bool {
 	// Define the regex pattern for a valid email
