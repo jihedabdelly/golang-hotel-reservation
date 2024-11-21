@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"golang-hotel-reservation/db"
 	"golang-hotel-reservation/types"
+	"net/http"
 	"os"
 	"time"
 
@@ -29,15 +30,27 @@ type AuthParams struct {
 }
 
 type AuthResponse struct {
-	User *types.User `json:"user"`
-	Token string `json:"token"`
+	User  *types.User `json:"user"`
+	Token string      `json:"token"`
 }
 
-// A hendler sould only do:
-//  - serialization of incoming request (JSON)
-//  - do some dat fetching from db
-//  - call some business logic
-//  - return the data back to user
+type genericResp struct {
+	Type string `json:"type"`
+	Msg  string `json:"msg"`
+}
+
+func invalidCredentials(c *fiber.Ctx) error {
+	return c.Status(http.StatusBadRequest).JSON(genericResp{
+		Type: "error",
+		Msg: "invalid credentials",
+	})
+}
+
+// A handler sould only do:
+//   - serialization of incoming request (JSON)
+//   - do some dat fetching from db
+//   - call some business logic
+//   - return the data back to user
 func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 	var params AuthParams
 	if err := c.BodyParser(&params); err != nil {
@@ -47,16 +60,16 @@ func (h *AuthHandler) HandleAuthenticate(c *fiber.Ctx) error {
 	user, err := h.userStore.GetUserByEmail(c.Context(), params.Email)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return fmt.Errorf("invalid credentials")
+			return invalidCredentials(c)
 		}
 		return err
 	}
 
-	if !types.IsValidPassword(user.EncryptedPassword, params.Password){
-		return fmt.Errorf("invalid credentials")
+	if !types.IsValidPassword(user.EncryptedPassword, params.Password) {
+		return invalidCredentials(c)
 	}
 	resp := AuthResponse{
-		User: user,
+		User:  user,
 		Token: createTokenFromUser(user),
 	}
 	return c.JSON(resp)
@@ -66,8 +79,8 @@ func createTokenFromUser(user *types.User) string {
 	now := time.Now()
 	expires := now.Add(time.Hour * 4).Unix()
 	claims := jwt.MapClaims{
-		"id": user.ID,
-		"email": user.Email,
+		"id":      user.ID,
+		"email":   user.Email,
 		"expires": expires,
 	}
 
