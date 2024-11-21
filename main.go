@@ -37,7 +37,7 @@ func main() {
 		}
 		hotelHandler = api.NewHotelHandler(store)
 		userHandler  = api.NewUserHandler(userStore)
-		authHandler  = api.NewAuthHandler((userStore))
+		authHandler  = api.NewAuthHandler(userStore)
 		app          = fiber.New(config)
 		auth         = app.Group("/api")
 		apiV1        = app.Group("/api/v1", middleware.JWTAuthentication)

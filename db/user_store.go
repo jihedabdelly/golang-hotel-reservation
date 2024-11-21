@@ -20,7 +20,7 @@ type UserStore interface {
 	Dropper
 	GetUserByID(context.Context, string) (*types.User, error)
 	GetUsers(context.Context) ([]*types.User, error )
-	InsertUser(context.Context, types.User) (*types.User, error)
+	InsertUser(context.Context, *types.User) (*types.User, error)
 	DeleteUser(context.Context, string) error
 	UpdateUser(ctx context.Context, filter bson.M, update bson.M) error
 	GetUserByEmail(context.Context, string) (*types.User, error)
@@ -80,7 +80,7 @@ func (s *MongoUserStore) GetUserByID(ctx context.Context, id string) (*types.Use
 	return &user, nil
 }
 
-func (s *MongoUserStore) InsertUser(ctx context.Context, user types.User) (*types.User, error) {
+func (s *MongoUserStore) InsertUser(ctx context.Context, user *types.User) (*types.User, error) {
 	res, err := s.coll.InsertOne(ctx, user)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (s *MongoUserStore) InsertUser(ctx context.Context, user types.User) (*type
 
 	user.ID = res.InsertedID.(primitive.ObjectID)
 
-	return &user, nil
+	return user, nil
 } 
 
 func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {

@@ -30,7 +30,7 @@ func seedUser(fname, lname, email string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	_, err = userStore.InsertUser(context.TODO(), *user)
+	_, err = userStore.InsertUser(context.TODO(), user)
 	if err != nil {
 		log.Fatal(err)
 	}
