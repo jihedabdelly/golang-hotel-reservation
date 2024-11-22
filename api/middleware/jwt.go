@@ -2,31 +2,41 @@ package middleware
 
 import (
 	"fmt"
+	"golang-hotel-reservation/db"
 	"os"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
+	//"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-func JWTAuthentication(c *fiber.Ctx) error  {
-	token, ok := c.GetReqHeaders()["X-Api-Token"]
-	if !ok {
-		fmt.Println("token not present in theheader")
-		return fmt.Errorf("unauthorized")
+func JWTAuthentication(userStore db.UserStore) fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		token, ok := c.GetReqHeaders()["X-Api-Token"]
+		if !ok {
+			fmt.Println("token not present in theheader")
+			return fmt.Errorf("unauthorized")
+		}
+		claims, err := validateToken(token[0])
+		if err != nil {
+			return err
+		}
+		expiresFloat := claims["expires"].(float64)
+		expires := int64(expiresFloat)
+		// check token expiration
+		if time.Now().Unix() > expires {
+			return fmt.Errorf("token expired")
+		}
+		userID := claims["id"].(string) //(primitive.ObjectID)
+		user, err := userStore.GetUserByID(c.Context(),userID)
+		if err != nil {
+			return fmt.Errorf("unauthorized")
+		}
+		// Set the current authenticated user to the context
+		c.Context().SetUserValue("user", user)
+		return c.Next()
 	}
-	claims, err := validateToken(token[0])
-	if err != nil {
-		return err
-	}
-	expiresFloat := claims["expires"].(float64)
-	expires := int64(expiresFloat)
-	// check token expiration
-	if time.Now().Unix() > expires {
-		return fmt.Errorf("token expired")
-	}
-
-	return c.Next()
 }
 
 func validateToken(tokenString string) (jwt.MapClaims, error) {
@@ -47,7 +57,7 @@ func validateToken(tokenString string) (jwt.MapClaims, error) {
 		fmt.Println("invalid token")
 		return nil, fmt.Errorf("unauthorized")
 	}
-	
+
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
 		return nil, fmt.Errorf("unauthorized")
