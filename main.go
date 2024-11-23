@@ -62,6 +62,8 @@ func main() {
 	apiV1.Get("/hotel/:id", hotelHandler.HandleGetHotel)
 	apiV1.Get("/hotel/:id/rooms", hotelHandler.HandleGetRooms)
 
+	// room handlers
+	apiV1.Get("/room", roomHandler.HandleGetRooms)
 	apiV1.Post("/room/:id/book", roomHandler.HandleBookRoom)
 
 	listenAddress := flag.String("listenAddress", ":5500", "The listen address or port of the API server.")
