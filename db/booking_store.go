@@ -4,6 +4,7 @@ import (
 	"context"
 	"golang-hotel-reservation/types"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -11,6 +12,7 @@ import (
 
 type BookingStore interface {
 	InsertBooking(context.Context, *types.Booking) (*types.Booking, error)
+	GetBookings(context.Context, bson.M) ([]*types.Booking, error)
 }
 
 type MongoBookingStore struct {
@@ -33,4 +35,16 @@ func (s *MongoBookingStore) InsertBooking(ctx context.Context, booking *types.Bo
 	booking.ID = resp.InsertedID.(primitive.ObjectID)
 
 	return booking, nil
+}
+
+func (s *MongoBookingStore) GetBookings(ctx context.Context, filter bson.M) ([]*types.Booking, error) {
+	curr, err := s.coll.Find(ctx, filter)
+	if err != nil {
+		return nil, err
+	}
+	var bookings []*types.Booking
+	if err := curr.All(ctx, &bookings); err != nil {
+		return nil, err
+	}
+	return bookings, nil
 }
