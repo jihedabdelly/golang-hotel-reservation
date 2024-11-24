@@ -44,14 +44,12 @@ func main() {
 		bookingHandler = api.NewBookingHandler(store)
 		app            = fiber.New(config)
 		auth           = app.Group("/api")
-		admin          = app.Group("/api/v1/admin", middleware.JWTAuthentication(userStore), middleware.AdminAuth)
 		apiV1          = app.Group("/api/v1", middleware.JWTAuthentication(userStore))
+		admin          = apiV1.Group("/admin", middleware.AdminAuth)
 	)
 
 	// auth
 	auth.Post("/auth", authHandler.HandleAuthenticate)
-
-	//
 
 	// Versioned API routes
 	// user handlers
