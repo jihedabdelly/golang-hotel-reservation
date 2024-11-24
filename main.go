@@ -44,11 +44,14 @@ func main() {
 		bookingHandler = api.NewBookingHandler(store)
 		app            = fiber.New(config)
 		auth           = app.Group("/api")
+		admin          = app.Group("/api/v1/admin", middleware.JWTAuthentication(userStore), middleware.AdminAuth)
 		apiV1          = app.Group("/api/v1", middleware.JWTAuthentication(userStore))
 	)
 
 	// auth
 	auth.Post("/auth", authHandler.HandleAuthenticate)
+
+	//
 
 	// Versioned API routes
 	// user handlers
@@ -68,9 +71,11 @@ func main() {
 	apiV1.Post("/room/:id/book", roomHandler.HandleBookRoom)
 	// TODO: cancel a booking
 
-	// booking handles
-	apiV1.Get("/booking", bookingHandler.HandleGetBookings)
+	// booking handlers
 	apiV1.Get("/booking/:id", bookingHandler.HandleGetBooking)
+
+	// admin handlers
+	admin.Get("/booking", bookingHandler.HandleGetBookings)
 
 	listenAddress := flag.String("listenAddress", ":5500", "The listen address or port of the API server.")
 	flag.Parse()

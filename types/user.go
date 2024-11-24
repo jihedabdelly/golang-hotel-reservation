@@ -25,10 +25,10 @@ type CreateUserParams struct {
 	Email     string `json:"email"`
 	Password  string `json:"password"`
 }
-func IsValidPassword(encpw, pw string) bool {
-	return bcrypt.CompareHashAndPassword([]byte(encpw), []byte(pw)) == nil		
-}
 
+func IsValidPassword(encpw, pw string) bool {
+	return bcrypt.CompareHashAndPassword([]byte(encpw), []byte(pw)) == nil
+}
 
 func isValidEmail(email string) bool {
 	// Define the regex pattern for a valid email
@@ -49,7 +49,7 @@ func (p *CreateUserParams) Validate() map[string]string {
 	}
 	if !isValidEmail(p.Email) {
 		errors["email"] = fmt.Sprintf("this %s email format is not a valid email", p.Email)
-	} 
+	}
 
 	return errors
 }
@@ -60,6 +60,7 @@ type User struct {
 	LastName          string             `bson:"lastName" json:"lastName"`
 	Email             string             `bson:"email" json:"email"`
 	EncryptedPassword string             `bson:"EncryptedPassword" json:"-"` // the - sign to not show this param in the json format
+	IsAdmin           bool               `bson:"isAdmin" json:"isAdmin"`
 }
 
 func NewUserFromParams(params CreateUserParams) (*User, error) {
