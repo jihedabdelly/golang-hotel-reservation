@@ -1,5 +1,7 @@
 package db
 
+const MongoDBNameEnvName = "MONGO_DB_NAME"
+
 const (
 	DBNAME      = "hotel-reservation"
 	DBNAME_TEST = "hotel-reservation-test"

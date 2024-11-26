@@ -11,15 +11,15 @@ import (
 	"os"
 	"time"
 
-	//"github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func main() {
-	/* if err := godotenv.Load(); err != nil {
+	if err := godotenv.Load(); err != nil {
 		log.Fatal(err)
-	} */
+	}
 	var (
 		ctx           = context.Background()
 		mongoEndpoint = os.Getenv("MONGO_DB_URL")
