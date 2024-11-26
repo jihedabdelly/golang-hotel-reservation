@@ -3,97 +3,55 @@ package main
 import (
 	"context"
 	"fmt"
+	//"golang-hotel-reservation/api"
 	"golang-hotel-reservation/db"
-	"golang-hotel-reservation/types"
+	"golang-hotel-reservation/db/fixtures"
 	"log"
+	"math/rand"
+	"os"
+	"time"
 
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	//"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var (
-	client     *mongo.Client
-	hotelStore db.HotelStore
-	roomStore  db.RoomStore
-	userStore  db.UserStore
-	ctx        = context.Background()
-)
-
-func seedUser(isAdmin bool, fname, lname, email, password string) {
-	user, err := types.NewUserFromParams(types.CreateUserParams{
-		Email:     email,
-		FirstName: fname,
-		LastName:  lname,
-		Password:  password,
-		
-	})
-	if err != nil {
-		log.Fatal(err)
-	}
-	user.IsAdmin = isAdmin
-	_, err = userStore.InsertUser(context.TODO(), user)
-	if err != nil {
-		log.Fatal(err)
-	}
-	
-}
-
-func seedHotel(name, location string, rating int) {
-	hotel := types.Hotel{
-		Name:     name,
-		Location: location,
-		Rooms:    []primitive.ObjectID{},
-		Rating:   rating,
-	}
-	rooms := []types.Room{
-		{
-			Size:  "small",
-			Price: 99.9,
-		}, {
-			Size:  "normal",
-			Price: 122.9,
-		},
-		{
-			Size:  "kingsize",
-			Price: 199.9,
-		},
-	}
-
-	insertedHotel, err := hotelStore.Insert(ctx, &hotel)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, room := range rooms {
-		room.HotelID = insertedHotel.ID
-
-		insertedRoom, err := roomStore.InsertRoom(ctx, &room)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(insertedRoom)
-	}
-}
-
 func main() {
-	seedHotel("Cigale", "Tunisia", 5)
-	seedHotel("George 5", "France", 2)
-	seedHotel("Antonov", "Russia", 3)
-	seedUser(false, "james", "foo", "james@foo.com", "supersecurepassword")
-	seedUser(true, "admin", "admin", "admin@admin.com", "adminpassword123")
-}
-
-func init() {
-	var err error
-	client, err = mongo.Connect(context.TODO(), options.Client().ApplyURI(db.DBURI))
+	/* if err := godotenv.Load(); err != nil {
+		log.Fatal(err)
+	} */
+	var (
+		ctx           = context.Background()
+		mongoEndpoint = os.Getenv("MONGO_DB_URL")
+		mongoDBName   = os.Getenv("MONGO_DB_NAME")
+	)
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoEndpoint))
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := client.Database(db.DBNAME).Drop(ctx); err != nil {
+	if err := client.Database(mongoDBName).Drop(ctx); err != nil {
 		log.Fatal(err)
 	}
-	hotelStore = db.NewMongoHotelStore(client)
-	roomStore = db.NewMongoRoomStore(client, hotelStore)
-	userStore = db.NewMongoUserStore(client)
+	hotelStore := db.NewMongoHotelStore(client)
+	store := &db.Store{
+		User:    db.NewMongoUserStore(client),
+		Booking: db.NewMongoBookingStore(client),
+		Room:    db.NewMongoRoomStore(client, hotelStore),
+		Hotel:   hotelStore,
+	}
+
+	user := fixtures.AddUser(store, "james", "foo", false)
+	//fmt.Println("james ->", api.CreateTokenFromUser(user))
+	//admin := fixtures.AddUser(store, "admin", "admin", true)
+	//fmt.Println("admin ->", api.CreateTokenFromUser(admin))
+	hotel := fixtures.AddHotel(store, "some hotel", "bermuda", 5, nil)
+	room := fixtures.AddRoom(store, "large", true, 88.44, hotel.ID)
+	booking := fixtures.AddBooking(store, user.ID, room.ID, time.Now(), time.Now().AddDate(0, 0, 5))
+	fmt.Println("booking ->", booking.ID)
+
+	for i := 0; i < 100; i++ {
+		name := fmt.Sprintf("random hotel name %d", i)
+		location := fmt.Sprintf("location %d", i)
+		fixtures.AddHotel(store, name, location, rand.Intn(5)+1, nil)
+	}
 }
