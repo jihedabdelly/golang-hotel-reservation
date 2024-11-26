@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	//"golang-hotel-reservation/api"
+	"golang-hotel-reservation/api"
 	"golang-hotel-reservation/db"
 	"golang-hotel-reservation/db/fixtures"
 	"log"
@@ -41,9 +41,9 @@ func main() {
 	}
 
 	user := fixtures.AddUser(store, "james", "foo", false)
-	//fmt.Println("james ->", api.CreateTokenFromUser(user))
-	//admin := fixtures.AddUser(store, "admin", "admin", true)
-	//fmt.Println("admin ->", api.CreateTokenFromUser(admin))
+	fmt.Println("james ->", api.CreateTokenFromUser(user))
+	admin := fixtures.AddUser(store, "admin", "admin", true)
+	fmt.Println("admin ->", api.CreateTokenFromUser(admin))
 	hotel := fixtures.AddHotel(store, "some hotel", "bermuda", 5, nil)
 	room := fixtures.AddRoom(store, "large", true, 88.44, hotel.ID)
 	booking := fixtures.AddBooking(store, user.ID, room.ID, time.Now(), time.Now().AddDate(0, 0, 5))
