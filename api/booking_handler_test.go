@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"fmt"
-	"golang-hotel-reservation/api/middleware"
 	"golang-hotel-reservation/db/fixtures"
 	"golang-hotel-reservation/types"
 	"net/http"
@@ -27,7 +26,7 @@ func TestUserGetBooking(t *testing.T) {
 		till           = from.AddDate(0, 0, 5)
 		booking        = fixtures.AddBooking(db.Store, user.ID, room.ID, from, till)
 		app            = fiber.New()
-		route          = app.Group("/", middleware.JWTAuthentication(db.User))
+		route          = app.Group("/", JWTAuthentication(db.User))
 		bookingHandler = NewBookingHandler(db.Store)
 	)
 	route.Get("/:id", bookingHandler.HandleGetBooking)
@@ -74,7 +73,7 @@ func TestAdminGetBookings(t *testing.T) {
 		till           = from.AddDate(0, 0, 5)
 		booking        = fixtures.AddBooking(db.Store, user.ID, room.ID, from, till)
 		app            = fiber.New()
-		admin          = app.Group("/", middleware.JWTAuthentication(db.User), middleware.AdminAuth)
+		admin          = app.Group("/", JWTAuthentication(db.User), AdminAuth)
 		bookingHandler = NewBookingHandler(db.Store)
 	)
 	admin.Get("/", bookingHandler.HandleGetBookings)

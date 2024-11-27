@@ -1,4 +1,4 @@
-package middleware
+package api
 
 import (
 	"fmt"
@@ -16,6 +16,7 @@ func JWTAuthentication(userStore db.UserStore) fiber.Handler {
 		token, ok := c.GetReqHeaders()["X-Api-Token"]
 		if !ok {
 			fmt.Println("token not present in theheader")
+			//_ = api.NewError(15, "egzetg")
 			return fmt.Errorf("unauthorized")
 		}
 		claims, err := validateToken(token[0])
