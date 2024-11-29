@@ -10,6 +10,9 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+// the bson.M is mongodb specific, GeneralizedBson is a more generalized for other db providers
+type GeneralizedBson map[string]any
+
 const userColl = "users"
 
 type Dropper interface {
@@ -22,7 +25,7 @@ type UserStore interface {
 	GetUsers(context.Context) ([]*types.User, error )
 	InsertUser(context.Context, *types.User) (*types.User, error)
 	DeleteUser(context.Context, string) error
-	UpdateUser(ctx context.Context, filter bson.M, update bson.M) error
+	UpdateUser(ctx context.Context, filter GeneralizedBson, update GeneralizedBson) error
 	GetUserByEmail(context.Context, string) (*types.User, error)
 }
 
@@ -107,7 +110,7 @@ func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 	return nil
 }
 
-func (s *MongoUserStore) UpdateUser(ctx context.Context, filter bson.M, update bson.M) error {
+func (s *MongoUserStore) UpdateUser(ctx context.Context, filter GeneralizedBson, update GeneralizedBson) error {
 	_, err := s.coll.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
