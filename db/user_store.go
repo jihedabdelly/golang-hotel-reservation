@@ -111,7 +111,13 @@ func (s *MongoUserStore) DeleteUser(ctx context.Context, id string) error {
 }
 
 func (s *MongoUserStore) UpdateUser(ctx context.Context, filter GeneralizedBson, update GeneralizedBson) error {
-	_, err := s.coll.UpdateOne(ctx, filter, update)
+	oid, err := primitive.ObjectIDFromHex(filter["_id"].(string))
+	if err != nil {
+		return err
+	}
+	filter["_id"] = oid
+	//update := bson.M{"$set": params}
+	_, err = s.coll.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
 	}
