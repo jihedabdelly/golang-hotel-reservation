@@ -116,7 +116,6 @@ func (s *MongoUserStore) UpdateUser(ctx context.Context, filter GeneralizedBson,
 		return err
 	}
 	filter["_id"] = oid
-	//update := bson.M{"$set": params}
 	_, err = s.coll.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
