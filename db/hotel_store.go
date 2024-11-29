@@ -4,7 +4,6 @@ import (
 	"context"
 	"golang-hotel-reservation/types"
 
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -13,9 +12,9 @@ const hotelColl = "hotels"
 
 type HotelStore interface {
 	Insert(context.Context, *types.Hotel) (*types.Hotel, error)
-	Update(context.Context, bson.M, bson.M) error
-	GetHotels(context.Context, bson.M) ([]*types.Hotel, error)
-	GetHotelByID(context.Context, bson.M) (*types.Hotel, error)
+	Update(context.Context, GeneralizedBson, GeneralizedBson) error
+	GetHotels(context.Context, GeneralizedBson) ([]*types.Hotel, error)
+	GetHotelByID(context.Context, GeneralizedBson) (*types.Hotel, error)
 }
 
 type MongoHotelStore struct {
@@ -40,12 +39,12 @@ func (s *MongoHotelStore) Insert(ctx context.Context, hotel *types.Hotel) (*type
 	return hotel, nil
 }
 
-func (s *MongoHotelStore) Update(ctx context.Context, filter bson.M, update bson.M) error {
+func (s *MongoHotelStore) Update(ctx context.Context, filter GeneralizedBson, update GeneralizedBson) error {
 	_, err := s.coll.UpdateOne(ctx, filter, update)
 	return err
 }
 
-func (s *MongoHotelStore) GetHotels(ctx context.Context, filter bson.M) ([]*types.Hotel, error) {
+func (s *MongoHotelStore) GetHotels(ctx context.Context, filter GeneralizedBson) ([]*types.Hotel, error) {
 	resp, err := s.coll.Find(ctx, filter)
 	if err != nil {
 		return nil, err
@@ -58,7 +57,7 @@ func (s *MongoHotelStore) GetHotels(ctx context.Context, filter bson.M) ([]*type
 	return hotels, nil
 }
 
-func (s *MongoHotelStore) GetHotelByID(ctx context.Context, filter bson.M) (*types.Hotel, error) {
+func (s *MongoHotelStore) GetHotelByID(ctx context.Context, filter GeneralizedBson) (*types.Hotel, error) {
 	var hotel *types.Hotel
 	if err := s.coll.FindOne(ctx, filter).Decode(&hotel); err != nil {
 		return nil, err

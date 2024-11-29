@@ -4,7 +4,6 @@ import (
 	"golang-hotel-reservation/db"
 
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type BookingHandler struct {
@@ -30,7 +29,7 @@ func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
 	if booking.UserID != user.ID {
 		return ErrUnAuthorized()
 	}
-	if err := h.store.Booking.UpdateBooking(c.Context(), booking.ID.Hex(), bson.M{"canceled": true}); err != nil {
+	if err := h.store.Booking.UpdateBooking(c.Context(), booking.ID.Hex(), db.GeneralizedBson{"canceled": true}); err != nil {
 		return err
 	}
 	return c.JSON(genericResp{
@@ -40,7 +39,7 @@ func (h *BookingHandler) HandleCancelBooking(c *fiber.Ctx) error {
 }
 
 func (h *BookingHandler) HandleGetBookings(c *fiber.Ctx) error {
-	bookings, err := h.store.Booking.GetBookings(c.Context(), bson.M{})
+	bookings, err := h.store.Booking.GetBookings(c.Context(), db.GeneralizedBson{})
 	if err != nil {
 		return ErrResourceNotFound("bookings")
 	}

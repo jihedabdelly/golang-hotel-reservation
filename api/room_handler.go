@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
@@ -39,7 +38,7 @@ type BookRoomParams struct {
 }
 
 func (h *RoomHandler) HandleGetRooms(c *fiber.Ctx) error {
-	rooms, err := h.store.Room.GetRooms(c.Context(), bson.M{})
+	rooms, err := h.store.Room.GetRooms(c.Context(), db.GeneralizedBson{})
 	if err != nil {
 		return err
 	}
@@ -94,12 +93,12 @@ func (h *RoomHandler) HandleBookRoom(c *fiber.Ctx) error {
 }
 
 func (h *RoomHandler) isRoomAvailableForBooking(ctx context.Context, roomID primitive.ObjectID, params BookRoomParams) (bool, error) {
-	where := bson.M{
+	where := db.GeneralizedBson{
 		"roomID": roomID,
-		"fromDate": bson.M{
+		"fromDate": db.GeneralizedBson{
 			"$gte": params.FromDate,
 		},
-		"tillDate": bson.M{
+		"tillDate": db.GeneralizedBson{
 			"$lte": params.TillDate,
 		},
 	}
