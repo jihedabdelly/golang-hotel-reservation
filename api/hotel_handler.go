@@ -31,7 +31,18 @@ func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
 	if err != nil {
 		return ErrResourceNotFound("hotels")
 	}
-	return c.JSON(hotels)
+	resp := ResourceResp{
+		Data: hotels,
+		Results: len(hotels),
+		Page: int(pagination.Page),
+	}
+	return c.JSON(resp)
+}
+
+type ResourceResp struct {
+	Results int `json:"results"`
+	Data    any `json:"data"`
+	Page    int `json:"page"`
 }
 
 func (h *HotelHandler) HandleGetHotel(c *fiber.Ctx) error {
