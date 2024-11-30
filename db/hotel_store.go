@@ -14,7 +14,7 @@ const hotelColl = "hotels"
 type HotelStore interface {
 	Insert(context.Context, *types.Hotel) (*types.Hotel, error)
 	Update(context.Context, GeneralizedBson, GeneralizedBson) error
-	GetHotels(context.Context, GeneralizedBson, *options.FindOptions) ([]*types.Hotel, error)
+	GetHotels(context.Context, GeneralizedBson, *Pagination) ([]*types.Hotel, error)
 	GetHotelByID(context.Context, GeneralizedBson) (*types.Hotel, error)
 }
 
@@ -45,8 +45,11 @@ func (s *MongoHotelStore) Update(ctx context.Context, filter GeneralizedBson, up
 	return err
 }
 
-func (s *MongoHotelStore) GetHotels(ctx context.Context, filter GeneralizedBson, opts *options.FindOptions) ([]*types.Hotel, error) {
-	resp, err := s.coll.Find(ctx, filter, opts)
+func (s *MongoHotelStore) GetHotels(ctx context.Context, filter GeneralizedBson, pag *Pagination) ([]*types.Hotel, error) {
+	opts := options.FindOptions{}
+	opts.SetSkip((pag.Page - 1) * pag.Limit)
+	opts.SetLimit(pag.Limit)
+	resp, err := s.coll.Find(ctx, filter, &opts)
 	if err != nil {
 		return nil, err
 	}

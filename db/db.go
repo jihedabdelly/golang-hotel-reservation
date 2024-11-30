@@ -8,7 +8,7 @@ const (
 	DBURI       = "mongodb://localhost:27017"
 )
 
-type QueryFilter struct {
+type Pagination struct {
 	Page  int64
 	Limit int64
 }
