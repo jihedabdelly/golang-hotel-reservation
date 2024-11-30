@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type HotelHandler struct {
@@ -23,7 +24,12 @@ type HotelQueryParams struct {
 }
 
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
-	hotels, err := h.store.Hotel.GetHotels(c.Context(), nil)
+	opts := options.FindOptions{}
+	page := 1
+	limit := 10
+	opts.SetSkip(int64((page-1)*limit))
+	opts.SetLimit(int64(limit))
+	hotels, err := h.store.Hotel.GetHotels(c.Context(), nil, &opts)
 	if err != nil {
 		return ErrResourceNotFound("hotels")
 	}
