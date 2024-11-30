@@ -24,11 +24,13 @@ type HotelQueryParams struct {
 }
 
 func (h *HotelHandler) HandleGetHotels(c *fiber.Ctx) error {
+	var queryFilter db.QueryFilter
+	if err := c.QueryParser(&queryFilter); err != nil {
+		return ErrBadRequest()
+	}
 	opts := options.FindOptions{}
-	page := 1
-	limit := 10
-	opts.SetSkip(int64((page-1)*limit))
-	opts.SetLimit(int64(limit))
+	opts.SetSkip((queryFilter.Page-1)*queryFilter.Limit)
+	opts.SetLimit(queryFilter.Limit)
 	hotels, err := h.store.Hotel.GetHotels(c.Context(), nil, &opts)
 	if err != nil {
 		return ErrResourceNotFound("hotels")
