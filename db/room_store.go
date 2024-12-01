@@ -23,7 +23,7 @@ type MongoRoomStore struct {
 }
 
 func NewMongoRoomStore(client *mongo.Client, hotelStore HotelStore) *MongoRoomStore {
-	dbname := os.Getenv("MONGO_DB_NAME")
+	dbname := os.Getenv(MongoDBNameEnvName)
 	return &MongoRoomStore{
 		client:     client,
 		coll:       client.Database(dbname).Collection(roomColl),

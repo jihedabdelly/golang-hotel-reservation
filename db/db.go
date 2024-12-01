@@ -1,9 +1,5 @@
 package db
 
-import "os"
-
-var DBNAME string
-
 const MongoDBNameEnvName = "MONGO_DB_NAME"
 
 
@@ -19,6 +15,3 @@ type Store struct {
 	Booking BookingStore
 }
 
-func init() {
-	DBNAME = os.Getenv("MONGO_DB_NAME")
-}
