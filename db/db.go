@@ -1,12 +1,11 @@
 package db
 
+import "os"
+
+var DBNAME string
+
 const MongoDBNameEnvName = "MONGO_DB_NAME"
 
-const (
-	DBNAME      = "hotel-reservation"
-	DBNAME_TEST = "hotel-reservation-test"
-	DBURI       = "mongodb://localhost:27017"
-)
 
 type Pagination struct {
 	Page  int64
@@ -18,4 +17,8 @@ type Store struct {
 	Hotel   HotelStore
 	Room    RoomStore
 	Booking BookingStore
+}
+
+func init() {
+	DBNAME = os.Getenv("MONGO_DB_NAME")
 }
