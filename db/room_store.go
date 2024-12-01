@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"golang-hotel-reservation/types"
+	"os"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -22,9 +23,10 @@ type MongoRoomStore struct {
 }
 
 func NewMongoRoomStore(client *mongo.Client, hotelStore HotelStore) *MongoRoomStore {
+	dbname := os.Getenv("MONGO_DB_NAME")
 	return &MongoRoomStore{
 		client:     client,
-		coll:       client.Database(DBNAME).Collection(roomColl),
+		coll:       client.Database(dbname).Collection(roomColl),
 		HotelStore: hotelStore,
 	}
 }
